@@ -8,9 +8,9 @@ from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 WATERMARK_TEXT = "OTSU"
 # Updated to SemiBold for "đậm hơn 1 chút"
 FONT_PATH = os.path.join(os.getcwd(), "geist-font/geist-font/Geist/ttf/Geist-SemiBold.ttf")
-# 960px / 1.5 ≈ 640px
-IMAGE_FONT_SIZE = 640
-VIDEO_FONT_SIZE = 320
+# Increased by 100%
+IMAGE_FONT_SIZE = 1280
+VIDEO_FONT_SIZE = 640
 LETTER_SPACING = -0.04  # -4%
 # Adding opacity (0-255) - "làm mờ đi"
 OPACITY = 100 
