@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.mp4
+*.png
+*.jpg
+*.jpeg
+.DS_Store
+temp_watermark.png
+!geist-font/
