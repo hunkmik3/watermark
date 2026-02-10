@@ -12,8 +12,8 @@ FONT_PATH = os.path.join(os.getcwd(), "geist-font/geist-font/Geist/ttf/Geist-Sem
 IMAGE_FONT_SIZE = 1280
 VIDEO_FONT_SIZE = 640
 LETTER_SPACING = -0.04  # -4%
-# Adding opacity (0-255) - "làm mờ đi"
-OPACITY = 100 
+# Reduced by 25% (100 -> 75)
+OPACITY = 75 
 
 def add_watermark_to_image(input_path, output_path):
     print(f"Applying watermark to image: {input_path}")
