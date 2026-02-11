@@ -151,7 +151,15 @@ def download(filename):
     file_path = os.path.join(OUTPUT_FOLDER, filename)
     if not os.path.exists(file_path):
         return jsonify({'error': 'File not found'}), 404
-    return send_file(file_path, as_attachment=True)
+    
+    # Get the original name from query param for better download name
+    original_name = request.args.get('original_name', filename)
+    ext = os.path.splitext(filename)[1]
+    if not os.path.splitext(original_name)[1]:
+        original_name += ext
+    download_name = f"watermarked_{original_name}"
+    
+    return send_file(file_path, as_attachment=True, download_name=download_name)
 
 
 if __name__ == '__main__':
