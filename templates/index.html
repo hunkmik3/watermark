@@ -211,20 +211,20 @@
                 : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
 
             if (isVid) {
-                statusText.textContent = 'Đang gán watermark vào video (có thể mất vài phút)...';
+                statusText.textContent = 'Đang tải lên và xử lý...';
             } else {
-                statusText.textContent = 'Đang gán watermark...';
+                statusText.textContent = 'Đang xử lý...';
             }
 
-            // Fake progress animation
+            // Fake upload progress
             let progress = 0;
             const progressInterval = setInterval(() => {
-                if (progress < 90) {
-                    progress += isVid ? 0.5 : 2;
+                if (progress < 40) {
+                    progress += 4;
                     progressBar.style.width = progress + '%';
                     progressPercent.textContent = Math.round(progress) + '%';
                 }
-            }, isVid ? 500 : 100);
+            }, 200);
 
             // Upload
             const formData = new FormData();
@@ -243,20 +243,63 @@
                         return;
                     }
 
-                    // Complete progress
-                    progressBar.style.width = '100%';
-                    progressPercent.textContent = '100%';
-                    statusText.textContent = 'Hoàn tất!';
-
-                    setTimeout(() => {
-                        progressSection.classList.remove('active');
-                        showResult(data);
-                    }, 600);
+                    if (data.task_id) {
+                        // Start polling
+                        progressBar.style.width = '50%';
+                        progressPercent.textContent = '50%';
+                        statusText.textContent = 'Đang xử lý server (vui lòng chờ)...';
+                        pollStatus(data.task_id, isVid);
+                    } else {
+                        showError("Không nhận được mã tác vụ từ server.");
+                    }
                 })
                 .catch(err => {
                     clearInterval(progressInterval);
-                    showError('Không thể kết nối tới server. Vui lòng thử lại.');
+                    showError('Lỗi kết nối khi tải lên: ' + err.message);
                 });
+        }
+
+        function pollStatus(taskId, isVid) {
+            let progress = 50;
+            // Slow progress simulation while waiting
+            const processingInterval = setInterval(() => {
+                if (progress < 95) {
+                    progress += isVid ? 0.3 : 1; // slower for video
+                    progressBar.style.width = progress + '%';
+                    progressPercent.textContent = Math.round(progress) + '%';
+                }
+            }, 500);
+
+            const intervalId = setInterval(() => {
+                fetch(`/status/${taskId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'completed') {
+                            clearInterval(intervalId);
+                            clearInterval(processingInterval);
+
+                            progressBar.style.width = '100%';
+                            progressPercent.textContent = '100%';
+                            statusText.textContent = 'Hoàn tất!';
+
+                            setTimeout(() => {
+                                progressSection.classList.remove('active');
+                                showResult(data.result);
+                            }, 500);
+                        } else if (data.status === 'failed') {
+                            clearInterval(intervalId);
+                            clearInterval(processingInterval);
+                            showError('Lỗi xử lý: ' + (data.error || 'Unknown error'));
+                        } else {
+                            // Still processing, do nothing (let fake progress continue)
+                            statusText.textContent = 'Đang xử lý...';
+                        }
+                    })
+                    .catch(err => {
+                        // Network error during polling, dont stop, just retry
+                        console.error("Polling error:", err);
+                    });
+            }, 2000); // Check every 2 seconds
         }
 
         function showResult(data) {

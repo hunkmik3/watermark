@@ -2,6 +2,8 @@ import os
 import uuid
 import re
 from urllib.parse import quote
+import threading
+import time
 from flask import Flask, render_template, request, send_file, jsonify
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import VideoFileClip, CompositeVideoClip, ImageClip
@@ -18,8 +20,29 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 WATERMARK_TEXT = "OTSU LABS"
 FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "geist-font/geist-font/Geist/ttf/Geist-SemiBold.ttf")
 LETTER_SPACING = -0.04
-OPACITY = 35
+OPACITY = 25
 TARGET_WIDTH_RATIO = 0.65  # 65% of media width
+
+# --- Task Management ---
+TASKS = {}
+TASKS_LOCK = threading.Lock()
+
+def update_task_status(task_id, status, result=None, error=None):
+    with TASKS_LOCK:
+        TASKS[task_id] = {
+            'status': status,
+            'result': result,
+            'error': error,
+            'timestamp': time.time()
+        }
+
+def cleanup_old_tasks():
+    # Simple cleanup to prevent memory leak (remove tasks older than 1 hour)
+    with TASKS_LOCK:
+        current_time = time.time()
+        to_remove = [tid for tid, info in TASKS.items() if current_time - info.get('timestamp', 0) > 3600]
+        for tid in to_remove:
+            del TASKS[tid]
 
 
 def get_optimal_font_size(img_width):
@@ -133,10 +156,41 @@ def add_watermark_to_video(input_path, output_path):
                  .with_position("center"))
 
     result = CompositeVideoClip([video, watermark])
-    result.write_videofile(output_path, codec="libx264", audio_codec="aac")
+    # Using 'ultrafast' preset for speed, crf=23 for decent quality
+    result.write_videofile(output_path, codec="libx264", audio_codec="aac", preset='ultrafast', threads=4)
 
     if os.path.exists(temp_txt_path):
         os.remove(temp_txt_path)
+
+
+def process_task(task_id, input_path, output_path, ext, original_filename):
+    """Background worker function."""
+    try:
+        update_task_status(task_id, 'processing')
+        
+        file_type = 'unknown'
+        if ext in IMAGE_EXTS:
+            add_watermark_to_image(input_path, output_path)
+            file_type = 'image'
+        elif ext in VIDEO_EXTS:
+            add_watermark_to_video(input_path, output_path)
+            file_type = 'video'
+        
+        # Cleanup input
+        if os.path.exists(input_path):
+            os.remove(input_path)
+            
+        update_task_status(task_id, 'completed', result={
+            'filename': os.path.basename(output_path),
+            'original_name': original_filename,
+            'type': file_type
+        })
+        
+    except Exception as e:
+        print(f"Task {task_id} failed: {e}")
+        update_task_status(task_id, 'failed', error=str(e))
+        if os.path.exists(input_path):
+            os.remove(input_path)
 
 
 @app.route('/')
@@ -146,6 +200,9 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    # Cleanup old tasks occasionally
+    cleanup_old_tasks()
+
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
@@ -158,36 +215,37 @@ def upload():
         return jsonify({'error': f'Unsupported file format: {ext}'}), 400
 
     # Save uploaded file
-    unique_id = uuid.uuid4().hex
-    input_filename = f"{unique_id}{ext}"
+    task_id = uuid.uuid4().hex
+    input_filename = f"{task_id}{ext}"
     input_path = os.path.join(UPLOAD_FOLDER, input_filename)
     file.save(input_path)
 
-    # Process watermark
-    output_filename = f"watermarked_{unique_id}{ext}"
+    output_filename = f"watermarked_{task_id}{ext}"
     output_path = os.path.join(OUTPUT_FOLDER, output_filename)
 
-    try:
-        if ext in IMAGE_EXTS:
-            add_watermark_to_image(input_path, output_path)
-            file_type = 'image'
-        else:
-            add_watermark_to_video(input_path, output_path)
-            file_type = 'video'
+    # Initialize task status
+    update_task_status(task_id, 'queued')
 
-        # Clean up uploaded file
-        os.remove(input_path)
+    # Start processing in a background thread
+    thread = threading.Thread(target=process_task, args=(task_id, input_path, output_path, ext, file.filename))
+    thread.start()
 
-        return jsonify({
-            'success': True,
-            'filename': output_filename,
-            'original_name': file.filename,
-            'type': file_type
-        })
-    except Exception as e:
-        if os.path.exists(input_path):
-            os.remove(input_path)
-        return jsonify({'error': str(e)}), 500
+    return jsonify({
+        'success': True,
+        'task_id': task_id,
+        'message': 'File uploaded, processing started.'
+    })
+
+
+@app.route('/status/<task_id>')
+def status(task_id):
+    with TASKS_LOCK:
+        task_info = TASKS.get(task_id)
+    
+    if not task_info:
+        return jsonify({'error': 'Task not found'}), 404
+        
+    return jsonify(task_info)
 
 
 @app.route('/preview/<filename>')
