@@ -257,6 +257,7 @@
         function showResult(data) {
             resultSection.classList.add('active');
 
+            const previewUrl = `/preview/${data.filename}`;
             const downloadUrl = `/download/${data.filename}?original_name=${encodeURIComponent(data.original_name)}`;
             downloadBtn.href = downloadUrl;
             downloadBtn.download = `watermarked_${data.original_name}`;
@@ -265,12 +266,12 @@
             previewContainer.innerHTML = '';
             if (data.type === 'image') {
                 const img = document.createElement('img');
-                img.src = downloadUrl;
+                img.src = previewUrl;
                 img.alt = 'Watermarked preview';
                 previewContainer.appendChild(img);
             } else {
                 const video = document.createElement('video');
-                video.src = downloadUrl;
+                video.src = previewUrl;
                 video.controls = true;
                 video.autoplay = true;
                 video.muted = true;

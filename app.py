@@ -146,21 +146,32 @@ def upload():
         return jsonify({'error': str(e)}), 500
 
 
+@app.route('/preview/<filename>')
+def preview(filename):
+    """Serve file inline for preview (no download forced)."""
+    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+    return send_file(file_path)
+
+
 @app.route('/download/<filename>')
 def download(filename):
+    """Force download with the correct original filename."""
     file_path = os.path.join(OUTPUT_FOLDER, filename)
     if not os.path.exists(file_path):
         return jsonify({'error': 'File not found'}), 404
     
-    # Get the original name from query param for better download name
     original_name = request.args.get('original_name', filename)
     ext = os.path.splitext(filename)[1]
     if not os.path.splitext(original_name)[1]:
         original_name += ext
     download_name = f"watermarked_{original_name}"
     
-    return send_file(file_path, as_attachment=True, download_name=download_name)
+    response = send_file(file_path, as_attachment=True, download_name=download_name)
+    response.headers['Content-Disposition'] = f'attachment; filename="{download_name}"'
+    return response
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
