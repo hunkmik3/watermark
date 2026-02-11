@@ -15,10 +15,46 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Watermark settings
 WATERMARK_TEXT = "OTSU"
 FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "geist-font/geist-font/Geist/ttf/Geist-SemiBold.ttf")
-IMAGE_FONT_SIZE = 832
-VIDEO_FONT_SIZE = 416
 LETTER_SPACING = -0.04
 OPACITY = 25
+TARGET_WIDTH_RATIO = 0.65  # 65% of media width
+
+
+def get_optimal_font_size(img_width):
+    """Calculate font size to match target width ratio."""
+    # Start with a reference size
+    ref_size = 100
+    try:
+        font = ImageFont.truetype(FONT_PATH, ref_size)
+    except OSError:
+        # Fallback if specific font not found during dev
+        font = ImageFont.load_default()
+        return int(img_width * 0.1) # Rough fallback
+
+    # Measure text width at reference size
+    dummy_img = Image.new('RGBA', (1, 1))
+    draw = ImageDraw.Draw(dummy_img)
+    
+    total_width = 0
+    spacing = ref_size * LETTER_SPACING
+    
+    for char in WATERMARK_TEXT:
+        bbox = draw.textbbox((0, 0), char, font=font)
+        # some fonts might give negative x, ensure width is positive
+        char_w = bbox[2] - bbox[0]
+        total_width += char_w + spacing
+    
+    total_width -= spacing # remove last spacing
+    
+    if total_width <= 0:
+        return ref_size # Should not happen
+
+    # Calculate scale needed to reach target width
+    target_width = img_width * TARGET_WIDTH_RATIO
+    scale_factor = target_width / total_width
+    
+    return int(ref_size * scale_factor)
+
 
 IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.webp'}
 VIDEO_EXTS = {'.mp4', '.mov', '.avi', '.mkv', '.webm'}
@@ -29,10 +65,13 @@ def add_watermark_to_image(input_path, output_path):
         img = img.convert("RGBA")
         txt_layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
         draw = ImageDraw.Draw(txt_layer)
-        font = ImageFont.truetype(FONT_PATH, IMAGE_FONT_SIZE)
+        
+        # Calculate dynamic font size
+        font_size = get_optimal_font_size(img.width)
+        font = ImageFont.truetype(FONT_PATH, font_size)
 
         total_width = 0
-        spacing = IMAGE_FONT_SIZE * LETTER_SPACING
+        spacing = font_size * LETTER_SPACING
         chars_info = []
         for char in WATERMARK_TEXT:
             bbox = draw.textbbox((0, 0), char, font=font)
@@ -62,10 +101,13 @@ def add_watermark_to_video(input_path, output_path):
     txt_img_h = int(video.h)
     txt_img = Image.new('RGBA', (txt_img_w, txt_img_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(txt_img)
-    font = ImageFont.truetype(FONT_PATH, VIDEO_FONT_SIZE)
+    
+    # Calculate dynamic font size
+    font_size = get_optimal_font_size(txt_img_w)
+    font = ImageFont.truetype(FONT_PATH, font_size)
 
     total_width = 0
-    spacing = VIDEO_FONT_SIZE * LETTER_SPACING
+    spacing = font_size * LETTER_SPACING
     chars_info = []
     for char in WATERMARK_TEXT:
         char_bbox = draw.textbbox((0, 0), char, font=font)

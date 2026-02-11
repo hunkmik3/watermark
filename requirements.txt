@@ -1,0 +1,11 @@
+Flask
+Pillow
+moviepy
+gunicorn
+python-dotenv
+tqdm
+imageio
+numpy
+proglog
+imageio_ffmpeg
+decorator
