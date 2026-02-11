@@ -106,15 +106,17 @@ body::before {
     margin-bottom: 48px;
 }
 
-.logo {
-    margin-bottom: 20px;
-    display: inline-block;
+.logo-wrapper {
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
 }
 
-.logo img {
-    max-width: 55px;
-    height: auto;
+.site-logo {
+    height: 80px;
+    width: auto;
     object-fit: contain;
+    display: block;
 }
 
 .header h1 {
