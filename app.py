@@ -119,11 +119,26 @@ def add_watermark_to_image(input_path, output_path):
         out.save(output_path)
 
 
-def add_watermark_to_video(input_path, output_path):
-    video = VideoFileClip(input_path)
+import subprocess
 
-    txt_img_w = int(video.w)
-    txt_img_h = int(video.h)
+def add_watermark_to_video(input_path, output_path):
+    # Get video dimensions using ffprobe
+    cmd_probe = [
+        'ffprobe', '-v', 'error', '-select_streams', 'v:0',
+        '-show_entries', 'stream=width,height', '-of', 'csv=s=x:p=0', input_path
+    ]
+    try:
+        dim = subprocess.check_output(cmd_probe).decode('utf-8').strip().split('x')
+        width, height = int(dim[0]), int(dim[1])
+    except Exception as e:
+        print(f"Error getting video dimensions: {e}")
+        # Fallback default if probe fails
+        width, height = 1920, 1080
+
+    # Create a transparent image with the watermark text
+    # We still use PIL to generate the watermark image because it's easier for text styling
+    txt_img_w = width
+    txt_img_h = height
     txt_img = Image.new('RGBA', (txt_img_w, txt_img_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(txt_img)
     
@@ -148,19 +163,47 @@ def add_watermark_to_video(input_path, output_path):
         draw.text((start_x, center_y), char, font=font, fill=(255, 255, 255, OPACITY), anchor="lm")
         start_x += char_w + spacing
 
-    temp_txt_path = os.path.join(OUTPUT_FOLDER, f"temp_wm_{uuid.uuid4().hex}.png")
-    txt_img.save(temp_txt_path)
+    # Save watermark image to a temp file
+    temp_wm_path = os.path.join(OUTPUT_FOLDER, f"temp_wm_overlay_{uuid.uuid4().hex}.png")
+    txt_img.save(temp_wm_path)
 
-    watermark = (ImageClip(temp_txt_path)
-                 .with_duration(video.duration)
-                 .with_position("center"))
-
-    result = CompositeVideoClip([video, watermark])
-    # Using 'ultrafast' preset for speed, crf=23 for decent quality
-    result.write_videofile(output_path, codec="libx264", audio_codec="aac", preset='ultrafast', threads=4)
-
-    if os.path.exists(temp_txt_path):
-        os.remove(temp_txt_path)
+    try:
+        # Use simple ffmpeg command to overlay image
+        # -movflags faststart: Optimizes for web playback
+        # -preset ultrafast: Prioritizes speed over compression
+        cmd_ffmpeg = [
+            'ffmpeg', '-y',
+            '-i', input_path,
+            '-i', temp_wm_path,
+            '-filter_complex', 'overlay=0:0',
+            '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+            '-c:a', 'copy',
+            '-movflags', '+faststart',
+            output_path
+        ]
+        
+        subprocess.run(cmd_ffmpeg, check=True)
+        
+    except subprocess.CalledProcessError as e:
+        # If overlay fails (e.g. format issues), try re-encoding audio
+        print(f"FFmpeg overlay failed, trying with audio re-encode: {e}")
+        try:
+             cmd_ffmpeg = [
+                'ffmpeg', '-y',
+                '-i', input_path,
+                '-i', temp_wm_path,
+                '-filter_complex', 'overlay=0:0',
+                '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '23',
+                '-c:a', 'aac', # Force audio re-encode
+                '-movflags', '+faststart',
+                output_path
+            ]
+             subprocess.run(cmd_ffmpeg, check=True)
+        except Exception as ex:
+             raise Exception(f"FFmpeg failed: {ex}") 
+    finally:
+        if os.path.exists(temp_wm_path):
+            os.remove(temp_wm_path)
 
 
 def process_task(task_id, input_path, output_path, ext, original_filename):
