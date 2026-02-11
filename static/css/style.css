@@ -1,21 +1,64 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Geist Font */
+@font-face {
+    font-family: 'Geist';
+    src: url('/static/fonts/Geist-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geist';
+    src: url('/static/fonts/Geist-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geist';
+    src: url('/static/fonts/Geist-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geist';
+    src: url('/static/fonts/Geist-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Geist';
+    src: url('/static/fonts/Geist-ExtraBold.woff2') format('woff2');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
 
 :root {
-    --bg-primary: #0a0a0f;
-    --bg-secondary: #12121a;
-    --bg-card: #1a1a2e;
-    --bg-card-hover: #222240;
-    --accent: #6c63ff;
-    --accent-light: #8b83ff;
-    --accent-glow: rgba(108, 99, 255, 0.3);
-    --text-primary: #f0f0f5;
-    --text-secondary: #9494a8;
-    --text-muted: #5a5a72;
-    --border: rgba(108, 99, 255, 0.15);
-    --success: #00c896;
-    --error: #ff4d6a;
-    --gradient-1: linear-gradient(135deg, #6c63ff, #3b82f6);
-    --gradient-2: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+    --bg-primary: #181717;
+    --bg-secondary: #1e1d1d;
+    --bg-card: #222121;
+    --bg-card-hover: #2a2929;
+    --accent: #66FE66;
+    --accent-light: #88ff88;
+    --accent-dim: #44cc44;
+    --accent-glow: rgba(102, 254, 102, 0.15);
+    --accent-glow-strong: rgba(102, 254, 102, 0.25);
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --text-muted: #666666;
+    --border: rgba(102, 254, 102, 0.12);
+    --border-hover: rgba(102, 254, 102, 0.3);
+    --success: #66FE66;
+    --error: #ff4d4d;
+    --radius: 16px;
+    --radius-sm: 10px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -25,14 +68,16 @@
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     min-height: 100vh;
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* Animated background */
+/* Subtle background texture */
 body::before {
     content: '';
     position: fixed;
@@ -41,70 +86,65 @@ body::before {
     width: 100%;
     height: 100%;
     background:
-        radial-gradient(ellipse 600px 600px at 20% 50%, rgba(108, 99, 255, 0.06), transparent),
-        radial-gradient(ellipse 400px 400px at 80% 20%, rgba(59, 130, 246, 0.04), transparent),
-        radial-gradient(ellipse 500px 500px at 60% 80%, rgba(108, 99, 255, 0.03), transparent);
+        radial-gradient(ellipse 800px 800px at 30% 20%, rgba(102, 254, 102, 0.03), transparent),
+        radial-gradient(ellipse 600px 600px at 70% 80%, rgba(102, 254, 102, 0.02), transparent);
     pointer-events: none;
     z-index: 0;
 }
 
 .container {
-    max-width: 720px;
+    max-width: 640px;
     margin: 0 auto;
-    padding: 40px 20px;
+    padding: 48px 20px;
     position: relative;
     z-index: 1;
 }
 
-/* Header */
+/* ===== Header ===== */
 .header {
     text-align: center;
     margin-bottom: 48px;
 }
 
 .logo {
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     display: inline-block;
-    padding: 8px 20px;
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    background: rgba(108, 99, 255, 0.05);
+}
+
+.logo img {
+    max-width: 55px;
+    height: auto;
+    object-fit: contain;
 }
 
 .header h1 {
-    font-size: 42px;
+    font-family: 'Geist', sans-serif;
+    font-size: 44px;
     font-weight: 800;
-    letter-spacing: -1.5px;
-    line-height: 1.1;
-    margin-bottom: 12px;
-    background: linear-gradient(135deg, #fff 0%, #9494a8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 14px;
+    color: var(--text-primary);
 }
 
 .header p {
-    font-size: 16px;
+    font-size: 15px;
+    font-weight: 400;
     color: var(--text-secondary);
     line-height: 1.6;
-    max-width: 460px;
+    max-width: 400px;
     margin: 0 auto;
 }
 
-/* Upload area */
+/* ===== Upload Area ===== */
 .upload-area {
     position: relative;
-    border: 2px dashed var(--border);
-    border-radius: 20px;
-    padding: 60px 40px;
+    border: 1.5px dashed rgba(102, 254, 102, 0.2);
+    border-radius: var(--radius);
+    padding: 56px 40px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: var(--transition);
     background: var(--bg-card);
     margin-bottom: 32px;
     overflow: hidden;
@@ -114,45 +154,50 @@ body::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: var(--gradient-1);
+    background: radial-gradient(circle at center, rgba(102, 254, 102, 0.04), transparent 70%);
     opacity: 0;
     transition: opacity 0.4s ease;
-    border-radius: 20px;
 }
 
 .upload-area:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
-    box-shadow: 0 8px 40px var(--accent-glow);
+    box-shadow: 0 0 40px rgba(102, 254, 102, 0.08);
 }
 
 .upload-area:hover::before {
-    opacity: 0.04;
+    opacity: 1;
 }
 
 .upload-area.drag-over {
-    border-color: var(--accent-light);
+    border-color: var(--accent);
     background: var(--bg-card-hover);
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 12px 48px var(--accent-glow);
+    transform: translateY(-3px);
+    box-shadow: 0 0 60px rgba(102, 254, 102, 0.12);
 }
 
 .upload-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 20px;
-    border-radius: 16px;
-    background: rgba(108, 99, 255, 0.1);
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 18px;
+    border-radius: 14px;
+    background: rgba(102, 254, 102, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     z-index: 1;
+    transition: var(--transition);
+}
+
+.upload-area:hover .upload-icon {
+    background: rgba(102, 254, 102, 0.12);
+    transform: scale(1.05);
 }
 
 .upload-icon svg {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     stroke: var(--accent);
     fill: none;
     stroke-width: 2;
@@ -161,21 +206,24 @@ body::before {
 }
 
 .upload-area h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
+    font-family: 'Geist', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 6px;
     position: relative;
     z-index: 1;
+    color: var(--text-primary);
 }
 
 .upload-area h3 span {
     color: var(--accent);
     text-decoration: underline;
     text-underline-offset: 3px;
+    text-decoration-color: rgba(102, 254, 102, 0.4);
 }
 
 .upload-area p {
-    font-size: 14px;
+    font-size: 13px;
     color: var(--text-muted);
     position: relative;
     z-index: 1;
@@ -185,10 +233,10 @@ body::before {
     display: none;
 }
 
-/* Format badges */
+/* ===== Format Badges ===== */
 .formats {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     justify-content: center;
     flex-wrap: wrap;
     margin-top: 20px;
@@ -197,18 +245,25 @@ body::before {
 }
 
 .format-badge {
-    padding: 4px 12px;
+    padding: 3px 10px;
     border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-family: 'Geist', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.8px;
     text-transform: uppercase;
-    background: rgba(108, 99, 255, 0.08);
-    color: var(--text-secondary);
-    border: 1px solid rgba(108, 99, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-muted);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: var(--transition);
 }
 
-/* Progress */
+.upload-area:hover .format-badge {
+    border-color: rgba(102, 254, 102, 0.1);
+    color: var(--text-secondary);
+}
+
+/* ===== Progress ===== */
 .progress-section {
     display: none;
     margin-bottom: 32px;
@@ -221,8 +276,8 @@ body::before {
 
 .progress-card {
     background: var(--bg-card);
-    border-radius: 16px;
-    padding: 28px;
+    border-radius: var(--radius);
+    padding: 24px;
     border: 1px solid var(--border);
 }
 
@@ -234,10 +289,10 @@ body::before {
 }
 
 .progress-file-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    background: rgba(108, 99, 255, 0.1);
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+    background: rgba(102, 254, 102, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -245,16 +300,17 @@ body::before {
 }
 
 .progress-file-icon svg {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     stroke: var(--accent);
     fill: none;
     stroke-width: 2;
 }
 
 .progress-file-name {
+    font-family: 'Geist', sans-serif;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
@@ -269,8 +325,8 @@ body::before {
 
 .progress-bar-container {
     width: 100%;
-    height: 6px;
-    background: rgba(108, 99, 255, 0.1);
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 100px;
     overflow: hidden;
     margin-bottom: 12px;
@@ -279,26 +335,33 @@ body::before {
 .progress-bar {
     height: 100%;
     width: 0%;
-    background: var(--gradient-1);
+    background: var(--accent);
     border-radius: 100px;
     transition: width 0.3s ease;
     position: relative;
+    box-shadow: 0 0 12px rgba(102, 254, 102, 0.3);
 }
 
 .progress-bar::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
     animation: shimmer 1.5s infinite;
 }
 
 @keyframes shimmer {
-    0% { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .progress-status {
+    font-family: 'Geist', sans-serif;
     font-size: 13px;
     color: var(--text-secondary);
     display: flex;
@@ -309,23 +372,25 @@ body::before {
 .progress-status .status-text {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .spinner {
     width: 14px;
     height: 14px;
-    border: 2px solid var(--border);
+    border: 1.5px solid rgba(255, 255, 255, 0.1);
     border-top-color: var(--accent);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
-/* Result */
+/* ===== Result ===== */
 .result-section {
     display: none;
     margin-bottom: 32px;
@@ -337,15 +402,22 @@ body::before {
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .result-card {
     background: var(--bg-card);
-    border-radius: 16px;
-    padding: 28px;
-    border: 1px solid rgba(0, 200, 150, 0.2);
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid rgba(102, 254, 102, 0.15);
 }
 
 .result-header {
@@ -356,10 +428,10 @@ body::before {
 }
 
 .result-check {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
-    background: rgba(0, 200, 150, 0.1);
+    background: rgba(102, 254, 102, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -367,26 +439,27 @@ body::before {
 }
 
 .result-check svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--success);
+    width: 16px;
+    height: 16px;
+    stroke: var(--accent);
     fill: none;
     stroke-width: 2.5;
 }
 
 .result-header h3 {
-    font-size: 16px;
+    font-family: 'Geist', sans-serif;
+    font-size: 15px;
     font-weight: 600;
-    color: var(--success);
+    color: var(--accent);
 }
 
-/* Preview */
+/* ===== Preview ===== */
 .preview-container {
-    border-radius: 12px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
     margin-bottom: 20px;
     background: var(--bg-primary);
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .preview-container img,
@@ -397,40 +470,46 @@ body::before {
     object-fit: contain;
 }
 
-/* Download button */
+/* ===== Download Button ===== */
 .download-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     width: 100%;
-    padding: 16px;
+    padding: 14px;
     border: none;
-    border-radius: 12px;
-    background: var(--gradient-1);
-    color: white;
-    font-size: 15px;
+    border-radius: var(--radius-sm);
+    background: var(--accent);
+    color: #181717;
+    font-family: 'Geist', sans-serif;
+    font-size: 14px;
     font-weight: 600;
-    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition);
     text-decoration: none;
+    letter-spacing: -0.2px;
 }
 
 .download-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px var(--accent-glow);
+    transform: translateY(-1px);
+    box-shadow: 0 0 32px rgba(102, 254, 102, 0.2);
+    background: var(--accent-light);
+}
+
+.download-btn:active {
+    transform: translateY(0);
 }
 
 .download-btn svg {
-    width: 18px;
-    height: 18px;
-    stroke: white;
+    width: 16px;
+    height: 16px;
+    stroke: #181717;
     fill: none;
     stroke-width: 2.5;
 }
 
-/* Error */
+/* ===== Error ===== */
 .error-section {
     display: none;
     margin-bottom: 32px;
@@ -443,19 +522,19 @@ body::before {
 
 .error-card {
     background: var(--bg-card);
-    border-radius: 16px;
-    padding: 24px;
-    border: 1px solid rgba(255, 77, 106, 0.2);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    border: 1px solid rgba(255, 77, 77, 0.15);
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
 .error-icon {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    background: rgba(255, 77, 106, 0.1);
+    background: rgba(255, 77, 77, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -463,8 +542,8 @@ body::before {
 }
 
 .error-icon svg {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     stroke: var(--error);
     fill: none;
     stroke-width: 2.5;
@@ -476,64 +555,89 @@ body::before {
     font-weight: 500;
 }
 
-/* Another button */
+/* ===== Another / Retry Button ===== */
 .another-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
     width: 100%;
-    padding: 14px;
-    border: 1px solid var(--border);
-    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
     background: transparent;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-family: 'Geist', sans-serif;
+    font-size: 13px;
     font-weight: 500;
-    font-family: 'Inter', sans-serif;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 12px;
+    transition: var(--transition);
+    margin-top: 10px;
 }
 
 .another-btn:hover {
     border-color: var(--accent);
-    color: var(--text-primary);
-    background: rgba(108, 99, 255, 0.05);
+    color: var(--accent);
+    background: rgba(102, 254, 102, 0.04);
 }
 
-/* Footer */
+/* ===== Footer ===== */
 .footer {
     text-align: center;
-    margin-top: 48px;
+    margin-top: 56px;
     padding-top: 24px;
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .footer p {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-muted);
+    letter-spacing: 0.3px;
 }
 
 .footer a {
     color: var(--accent);
     text-decoration: none;
+    transition: var(--transition);
 }
 
+.footer a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ===== Animations ===== */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 600px) {
     .container {
-        padding: 24px 16px;
+        padding: 32px 16px;
     }
+
     .header h1 {
-        font-size: 32px;
+        font-size: 34px;
+        letter-spacing: -1.5px;
     }
+
     .upload-area {
-        padding: 40px 24px;
+        padding: 40px 20px;
     }
+}
+
+.limit-note {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    opacity: 0.7;
+    position: relative;
+    z-index: 1;
 }

@@ -1,0 +1,8 @@
+{
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "https://racial-enclosed-learners-county.trycloudflare.com/$1"
+        }
+    ]
+}

@@ -5,7 +5,7 @@ from PIL import Image, ImageDraw, ImageFont
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 
 # Constants for the watermark
-WATERMARK_TEXT = "OTSU"
+WATERMARK_TEXT = "OTSU LABS"
 # Updated to SemiBold for "đậm hơn 1 chút"
 FONT_PATH = os.path.join(os.getcwd(), "geist-font/geist-font/Geist/ttf/Geist-SemiBold.ttf")
 # 65% of previous size
@@ -13,7 +13,7 @@ IMAGE_FONT_SIZE = 832
 VIDEO_FONT_SIZE = 416
 LETTER_SPACING = -0.04  # -4%
 # Reduced to 25
-OPACITY = 25 
+OPACITY = 35 
 
 def add_watermark_to_image(input_path, output_path):
     print(f"Applying watermark to image: {input_path}")

@@ -1,5 +1,7 @@
 import os
 import uuid
+import re
+from urllib.parse import quote
 from flask import Flask, render_template, request, send_file, jsonify
 from PIL import Image, ImageDraw, ImageFont
 from moviepy import VideoFileClip, CompositeVideoClip, ImageClip
@@ -13,10 +15,10 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # Watermark settings
-WATERMARK_TEXT = "OTSU"
+WATERMARK_TEXT = "OTSU LABS"
 FONT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "geist-font/geist-font/Geist/ttf/Geist-SemiBold.ttf")
 LETTER_SPACING = -0.04
-OPACITY = 25
+OPACITY = 35
 TARGET_WIDTH_RATIO = 0.65  # 65% of media width
 
 
@@ -205,13 +207,30 @@ def download(filename):
         return jsonify({'error': 'File not found'}), 404
     
     original_name = request.args.get('original_name', filename)
-    ext = os.path.splitext(filename)[1]
-    if not os.path.splitext(original_name)[1]:
+    ext = os.path.splitext(filename)[1]  # e.g. .mp4, .png
+    
+    # Ensure the original name has the correct extension
+    orig_base, orig_ext = os.path.splitext(original_name)
+    if not orig_ext:
         original_name += ext
+        orig_ext = ext
+    
     download_name = f"watermarked_{original_name}"
     
-    response = send_file(file_path, as_attachment=True, download_name=download_name)
-    response.headers['Content-Disposition'] = f'attachment; filename="{download_name}"'
+    # Sanitize for ASCII fallback: remove problematic characters
+    safe_name = re.sub(r'[^\w\s\-.]', '', download_name)
+    safe_name = re.sub(r'\s+', '_', safe_name)
+    # Ensure extension is preserved in safe name
+    if not safe_name.lower().endswith(orig_ext.lower()):
+        safe_name = os.path.splitext(safe_name)[0] + orig_ext
+    
+    # Use RFC 5987 encoding for full Unicode support
+    encoded_name = quote(download_name)
+    
+    response = send_file(file_path, as_attachment=True, download_name=safe_name)
+    response.headers['Content-Disposition'] = (
+        f"attachment; filename=\"{safe_name}\"; filename*=UTF-8''{encoded_name}"
+    )
     return response
 
 
